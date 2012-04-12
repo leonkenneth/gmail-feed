@@ -2,6 +2,7 @@
 import sys
 import getopt
 import urllib2
+from xml.dom.minidom import parseString
 
 # Utility to retrieve GMail Atom feed info.
 
@@ -67,9 +68,20 @@ def main():
     finally:
         remote.close()
 
-    # TODO: Parse the feed
-    print raw_feed
+    feed = parseString(raw_feed)
 
+    entries = feed.getElementsByTagName('entry')
+    if show_only_count:
+        print len(entries)
+    else:
+        for entry in entries:
+            # Get entry data
+            title = entry.getElementsByTagName('title')[0].firstChild.data
+            author_email = entry.getElementsByTagName('email')[0].firstChild.data
+            author_name = entry.getElementsByTagName('name')[0].firstChild.data
+
+            # Display it
+            print "%s <%s>:\t%s" % (author_name, author_email, title)
 
 if __name__ == "__main__":
     main()
