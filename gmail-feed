@@ -12,13 +12,13 @@ BASE_URL = 'https://mail.google.com/mail/feed/atom/%s'
 def main():
     parser = argparse.ArgumentParser('gmail-feed')
     parser.add_argument('-u, --username', dest='username', \
-                        help='your GMail login. Prompted if not specified',\
+                        help='your gmail login (prompted if not specified)',\
                         default=None)
     parser.add_argument('-p, --password', dest='password', \
-                        help='your GMail password. Prompted if not specified',\
+                        help='your gmail password (prompted if not specified)',\
                         default=None)
     parser.add_argument('-l, --label', dest='label', \
-                        help='GMail label to retrieve. Default is "unread."',\
+                        help='gmail label to retrieve (default is `unread`)',\
                         default='unread')
     parser.add_argument('-c, --count-only', dest='count_only', \
                         help='if specified, only outputs the number of entries \
