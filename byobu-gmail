@@ -1,0 +1,12 @@
+#! /bin/bash
+USER=
+PASSWD=
+COUNT=$( ~/gmail-feed/gmail-feed -u $USER -p PASSWD -c )
+
+if [ $COUNT -eq 0 ]; then
+    echo "No mail"
+elif [ $COUNT -eq 1 ]; then
+    echo "1 mail"
+else
+    echo "$COUNT mails"
+fi  
