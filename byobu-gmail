@@ -1,7 +1,7 @@
 #! /bin/bash
 USER=
 PASSWD=
-COUNT=$( ~/gmail-feed/gmail-feed -u $USER -p PASSWD -c )
+COUNT=$( ~/gmail-feed/gmail-feed -u $USER -p $PASSWD -c )
 
 if [ $COUNT -eq 0 ]; then
     echo "No mail"
