@@ -2,12 +2,14 @@
 import sys
 import argparse
 import urllib2
+import urlparse
+from urllib import urlencode
 from xml.dom.minidom import parseString
 
 # Utility to retrieve GMail Atom feed info.
 
 TOP_LEVEL_URL = 'https://mail.google.com'
-BASE_URL = 'https://mail.google.com/mail/feed/atom/%s'
+BASE_URL = 'https://mail.google.com/mail/feed/atom/'
 
 def main():
     parser = argparse.ArgumentParser('gmail-feed')
@@ -24,14 +26,14 @@ def main():
                         help='if specified, only outputs the number of entries \
                         in the feed.', action='store_true')
     opts = parser.parse_args(sys.argv[1:])
-    
+
     if opts.username is None:
         opts.username = raw_input("Username:")
     if opts.password is None:
         opts.password = raw_input("Password:")
 
     # Build url to open
-    url = BASE_URL % (opts.label)
+    url = urlparse.urljoin(BASE_URL, opts.label)
 
     # Authentication handler
     passwd_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
