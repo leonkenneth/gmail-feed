@@ -15,6 +15,16 @@ def display_message(message):
     # Display it
     print "%s <%s>:\t%s" % (message["name"], message["email"], message["title"])
 
+class Counter(object):
+    def __init__(self):
+      self.x = 0
+
+    def inc(self):
+      self.x = self.x + 1
+
+    def val(self):
+      return self.x
+
 def main():
     parser = argparse.ArgumentParser('gmail-feed')
     parser.add_argument('-u, --username', dest='username', \
@@ -40,9 +50,14 @@ def main():
         opts.password = raw_input("Password:")
 
     atom_feed = GmailAtomFeed(opts)
-    atom_feed.on_message(display_message)
-    atom_feed.retrieve()
-
+    if opts.count_only:
+      counter = Counter()
+      atom_feed.on_message(lambda _: counter.inc())
+      atom_feed.retrieve()
+      print counter.val()
+    else:
+      atom_feed.on_message(display_message)
+      atom_feed.retrieve()
 
 class GmailAtomFeed(object):
   def __init__(self, opts):
@@ -94,16 +109,14 @@ class GmailAtomFeed(object):
     feed = parseString(raw_feed)
 
     entries = feed.getElementsByTagName('entry')
-    if opts.count_only:
-        print len(entries)
-    else:
-        for entry in entries:
-            # Get entry data
-            message = {}
-            for field in ["title", "email", "name", "issued", "summary"]:
-              message[field] = entry.getElementsByTagName(field)[0].firstChild.data
 
-            self.emit_message(message)
+    for entry in entries:
+        # Get entry data
+        message = {}
+        for field in ["title", "email", "name", "issued", "summary"]:
+          message[field] = entry.getElementsByTagName(field)[0].firstChild.data
+
+        self.emit_message(message)
 
 if __name__ == "__main__":
     main()
