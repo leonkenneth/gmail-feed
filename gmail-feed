@@ -44,10 +44,13 @@ def main():
     try:
         remote = urllib2.urlopen(url)
         raw_feed = remote.read()
-    except URLError, e:
+    except urllib2.HTTPError, e:
         # TODO: Display understandable message
-        raise e
-    except HTTPError, e:
+        print "HTTP error: %s" % (e.msg)
+        if e.code == 401:
+          print "Perhaps you mispelled your address or made a typo while entering your password?"
+        return
+    except urllib2.URLError, e:
         # TODO: Display understandable message
         raise e
     finally:
