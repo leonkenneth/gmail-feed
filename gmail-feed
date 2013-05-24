@@ -43,6 +43,7 @@ def main():
     opener = urllib2.build_opener(auth_handler)
     urllib2.install_opener(opener)
 
+    remote = None
     try:
         remote = urllib2.urlopen(url)
         raw_feed = remote.read()
@@ -56,7 +57,8 @@ def main():
         # TODO: Display understandable message
         raise e
     finally:
-        remote.close()
+        if remote is not None:
+            remote.close()
 
     feed = parseString(raw_feed)
 
