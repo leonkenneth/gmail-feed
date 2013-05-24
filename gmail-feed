@@ -100,9 +100,8 @@ class GmailAtomFeed(object):
         for entry in entries:
             # Get entry data
             message = {}
-            message["title"] = entry.getElementsByTagName('title')[0].firstChild.data
-            message["email"] = entry.getElementsByTagName('email')[0].firstChild.data
-            message["name"] = entry.getElementsByTagName('name')[0].firstChild.data
+            for field in ["title", "email", "name", "issued", "summary"]:
+              message[field] = entry.getElementsByTagName(field)[0].firstChild.data
 
             self.emit_message(message)
 
