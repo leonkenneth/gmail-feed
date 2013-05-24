@@ -3,13 +3,17 @@ import sys
 import argparse
 import urllib2
 import urlparse
-from urllib import urlencode
+import urllib
 from xml.dom.minidom import parseString
 
 # Utility to retrieve GMail Atom feed info.
 
 TOP_LEVEL_URL = 'https://mail.google.com'
 BASE_URL = 'https://mail.google.com/mail/feed/atom/'
+
+def display_message(message):
+    # Display it
+    print "%s <%s>:\t%s" % (message["name"], message["email"], message["title"])
 
 def main():
     parser = argparse.ArgumentParser('gmail-feed')
@@ -25,6 +29,9 @@ def main():
     parser.add_argument('-c, --count-only', dest='count_only', \
                         help='if specified, only outputs the number of entries \
                         in the feed.', action='store_true')
+    parser.add_argument('-v, --verbose', dest='verbose', \
+                        help='verbose output (mainly for debug)', \
+                        action='store_true')
     opts = parser.parse_args(sys.argv[1:])
 
     if opts.username is None:
@@ -32,8 +39,32 @@ def main():
     if opts.password is None:
         opts.password = raw_input("Password:")
 
+    atom_feed = GmailAtomFeed(opts)
+    atom_feed.on_message(display_message)
+    atom_feed.retrieve()
+
+
+class GmailAtomFeed(object):
+  def __init__(self, opts):
+    self.opts = opts
+    self.callback = None
+
+  def emit_message(self, message):
+    if self.callback is not None:
+      self.callback(message)
+
+  def on_message(self, fn):
+    self.callback = fn
+
+  def retrieve(self):
+    opts = self.opts
+
     # Build url to open
-    url = urlparse.urljoin(BASE_URL, opts.label)
+    url = urlparse.urljoin(BASE_URL, urllib.quote(opts.label))
+    if opts.verbose:
+      print 'Hitting URL: %s' % (url)
+      print 'With username: %s' % (opts.username)
+      print 'With password: %s' % ('*' * len(opts.password))
 
     # Authentication handler
     passwd_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
@@ -68,12 +99,12 @@ def main():
     else:
         for entry in entries:
             # Get entry data
-            title = entry.getElementsByTagName('title')[0].firstChild.data
-            author_email = entry.getElementsByTagName('email')[0].firstChild.data
-            author_name = entry.getElementsByTagName('name')[0].firstChild.data
+            message = {}
+            message["title"] = entry.getElementsByTagName('title')[0].firstChild.data
+            message["email"] = entry.getElementsByTagName('email')[0].firstChild.data
+            message["name"] = entry.getElementsByTagName('name')[0].firstChild.data
 
-            # Display it
-            print "%s <%s>:\t%s" % (author_name, author_email, title)
+            self.emit_message(message)
 
 if __name__ == "__main__":
     main()
